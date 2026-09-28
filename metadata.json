@@ -1,0 +1,7 @@
+{
+  "name": "RepoIntel-AI",
+  "description": "Understand your codebase. Find relevant code. Build faster. AI-powered semantic code search and AST repository intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
