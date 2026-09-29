@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { RepoIntelProvider } from './context/RepoIntelContext';
 import { AuthProvider } from './context/AuthContext';
+import { ScrollToTop } from './components/ScrollToTop';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { RepositoriesPage } from './pages/RepositoriesPage';
@@ -17,6 +18,7 @@ export default function App() {
       <RepoIntelProvider>
         <AuthProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               {/* Standalone Authentication Pages */}
               <Route path="/signin" element={<AuthPage initialMode="signin" />} />
@@ -38,4 +40,5 @@ export default function App() {
     </ThemeProvider>
   );
 }
+
 

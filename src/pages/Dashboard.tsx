@@ -19,7 +19,7 @@ import { useRepoIntel } from '../context/RepoIntelContext';
 import { AstDetailsModal } from '../components/AstDetailsModal';
 
 export const Dashboard: React.FC = () => {
-  const { repositories, setIsAddModalOpen, deleteRepository, triggerReindex } = useRepoIntel();
+  const { repositories, setIsAddModalOpen, requestDeleteRepository, triggerReindex } = useRepoIntel();
   const navigate = useNavigate();
   const [isAstModalOpen, setIsAstModalOpen] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -318,10 +318,10 @@ export const Dashboard: React.FC = () => {
                           </a>
                           <button
                             onClick={() => {
-                              deleteRepository(repo.id);
+                              requestDeleteRepository(repo);
                               setActiveMenuId(null);
                             }}
-                            className="w-full px-3 py-1.5 text-left text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800 mt-1"
+                            className="w-full px-3 py-1.5 text-left text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800 mt-1 cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                             <span>Delete Repository</span>

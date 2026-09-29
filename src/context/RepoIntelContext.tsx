@@ -17,6 +17,10 @@ interface RepoIntelContextType {
   notifications: Notification[];
   isAddModalOpen: boolean;
   setIsAddModalOpen: (open: boolean) => void;
+  repoToDelete: Repository | null;
+  requestDeleteRepository: (repo: Repository) => void;
+  cancelDeleteRepository: () => void;
+  confirmDelete: () => Promise<void>;
   refreshRepositories: () => Promise<void>;
   addRepository: (params: { name: string; url: string; branch?: string; language?: Repository['language']; description?: string }) => Promise<Repository>;
   deleteRepository: (id: string) => Promise<void>;
@@ -37,6 +41,15 @@ export const RepoIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+  const [repoToDelete, setRepoToDelete] = useState<Repository | null>(null);
+
+  const requestDeleteRepository = useCallback((repo: Repository) => {
+    setRepoToDelete(repo);
+  }, []);
+
+  const cancelDeleteRepository = useCallback(() => {
+    setRepoToDelete(null);
+  }, []);
 
   const addNotification = useCallback((message: string, type: Notification['type'] = 'info') => {
     const id = `notif-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`;
@@ -107,6 +120,13 @@ export const RepoIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const confirmDelete = async () => {
+    if (!repoToDelete) return;
+    const repo = repoToDelete;
+    setRepoToDelete(null);
+    await deleteRepository(repo.id);
+  };
+
   const triggerReindex = async (id: string) => {
     try {
       const repo = repositories.find(r => r.id === id);
@@ -149,6 +169,10 @@ export const RepoIntelProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         notifications,
         isAddModalOpen,
         setIsAddModalOpen,
+        repoToDelete,
+        requestDeleteRepository,
+        cancelDeleteRepository,
+        confirmDelete,
         refreshRepositories,
         addRepository,
         deleteRepository,

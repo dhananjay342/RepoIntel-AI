@@ -17,7 +17,7 @@ import {
 import { useRepoIntel } from '../context/RepoIntelContext';
 
 export const RepositoriesPage: React.FC = () => {
-  const { repositories, setIsAddModalOpen, deleteRepository, triggerReindex } = useRepoIntel();
+  const { repositories, setIsAddModalOpen, requestDeleteRepository, triggerReindex } = useRepoIntel();
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -197,7 +197,7 @@ export const RepositoriesPage: React.FC = () => {
                   </a>
 
                   <button
-                    onClick={() => deleteRepository(repo.id)}
+                    onClick={() => requestDeleteRepository(repo)}
                     className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                     title="Delete Repository"
                   >
