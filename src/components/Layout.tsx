@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { AddRepoModal } from './AddRepoModal';
+import { AuthModal } from './AuthModal';
 import { NotificationToast } from './NotificationToast';
 
 export const Layout: React.FC = () => {
@@ -24,7 +25,9 @@ export const Layout: React.FC = () => {
 
       {/* Global Modals & Toasts */}
       <AddRepoModal />
+      <AuthModal />
       <NotificationToast />
     </div>
   );
 };
+
