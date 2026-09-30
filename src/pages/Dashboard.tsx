@@ -13,16 +13,42 @@ import {
   Trash2,
   ExternalLink,
   Layers,
-  Sparkles
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import { useRepoIntel } from '../context/RepoIntelContext';
 import { AstDetailsModal } from '../components/AstDetailsModal';
+import { Pagination } from '../components/Pagination';
 
 export const Dashboard: React.FC = () => {
   const { repositories, setIsAddModalOpen, requestDeleteRepository, triggerReindex } = useRepoIntel();
   const navigate = useNavigate();
   const [isAstModalOpen, setIsAstModalOpen] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // Pagination & lazy loading state (showing 3-4 repositories per page)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(4);
+  const [isPageLoading, setIsPageLoading] = useState(false);
+
+  const totalRepos = repositories.length;
+  const totalPages = Math.max(1, Math.ceil(totalRepos / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIndex = (safePage - 1) * pageSize;
+  const paginatedRepos = repositories.slice(startIndex, startIndex + pageSize);
+
+  const handlePageChange = (newPage: number) => {
+    setIsPageLoading(true);
+    setCurrentPage(newPage);
+    setTimeout(() => {
+      setIsPageLoading(false);
+    }, 120);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1);
+  };
 
   const handleSearchRepo = (repoName: string) => {
     navigate(`/search?repo=${encodeURIComponent(repoName)}`);
@@ -217,123 +243,169 @@ export const Dashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-              {repositories.map((repo) => (
-                <tr
-                  key={repo.id}
-                  className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
-                >
-                  {/* Name with Github Icon */}
-                  <td className="py-4 px-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                        <Github className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
-                          {repo.name}
-                        </span>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-2">
-                          <span>{repo.branch}</span>
-                          {repo.astStats && (
-                            <>
-                              <span>·</span>
-                              <span className="tabular-nums font-mono">{repo.astStats.functionsCount} symbols</span>
-                            </>
-                          )}
+              {isPageLoading ? (
+                // Smooth skeleton loading state during page transition
+                Array.from({ length: pageSize }).map((_, idx) => (
+                  <tr key={`skeleton-${idx}`} className="animate-pulse">
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800" />
+                        <div className="space-y-1.5">
+                          <div className="h-3.5 w-28 bg-slate-200 dark:bg-slate-800 rounded" />
+                          <div className="h-2.5 w-16 bg-slate-100 dark:bg-slate-800/60 rounded" />
                         </div>
                       </div>
-                    </div>
-                  </td>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="h-5 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="h-3.5 w-8 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="h-3.5 w-8 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="h-3.5 w-20 bg-slate-200 dark:bg-slate-800 rounded" />
+                    </td>
+                    <td className="py-4 px-6 text-right">
+                      <div className="h-6 w-16 bg-slate-200 dark:bg-slate-800 rounded inline-block" />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                paginatedRepos.map((repo) => (
+                  <tr
+                    key={repo.id}
+                    className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors"
+                  >
+                    {/* Name with Github Icon */}
+                    <td className="py-4 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                          <Github className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="font-semibold text-slate-900 dark:text-slate-100 text-sm">
+                            {repo.name}
+                          </span>
+                          <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                            <span>{repo.branch}</span>
+                            {repo.astStats && (
+                              <>
+                                <span>·</span>
+                                <span className="tabular-nums font-mono">{repo.astStats.functionsCount} symbols</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
 
-                  {/* Language Badge */}
-                  <td className="py-4 px-6">
-                    {getLanguageBadge(repo.language)}
-                  </td>
+                    {/* Language Badge */}
+                    <td className="py-4 px-6">
+                      {getLanguageBadge(repo.language)}
+                    </td>
 
-                  {/* Files Count */}
-                  <td className="py-4 px-6 text-slate-600 dark:text-slate-300 tabular-nums font-mono text-xs">
-                    {repo.files}
-                  </td>
+                    {/* Files Count */}
+                    <td className="py-4 px-6 text-slate-600 dark:text-slate-300 tabular-nums font-mono text-xs">
+                      {repo.files}
+                    </td>
 
-                  {/* Indexed Count */}
-                  <td className="py-4 px-6 tabular-nums font-mono text-xs">
-                    <span className="text-slate-900 dark:text-slate-100 font-medium">
-                      {repo.indexed}
-                    </span>
-                    {repo.status === 'indexing' && (
-                      <span className="ml-2 text-[10px] text-blue-500 font-sans animate-pulse">
-                        Indexing...
+                    {/* Indexed Count */}
+                    <td className="py-4 px-6 tabular-nums font-mono text-xs">
+                      <span className="text-slate-900 dark:text-slate-100 font-medium">
+                        {repo.indexed}
                       </span>
-                    )}
-                  </td>
-
-                  {/* Last Updated */}
-                  <td className="py-4 px-6 text-slate-500 dark:text-slate-400 tabular-nums">
-                    {repo.lastUpdated}
-                  </td>
-
-                  {/* Actions (Search button & ⋮ menu) */}
-                  <td className="py-4 px-6 text-right">
-                    <div className="relative inline-flex items-center gap-2 justify-end">
-                      <button
-                        onClick={() => handleSearchRepo(repo.name)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-lg text-blue-600 dark:text-blue-400 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 border border-blue-200/60 dark:border-blue-900/40 transition-colors cursor-pointer"
-                      >
-                        <Search className="w-3 h-3" />
-                        <span>Search</span>
-                      </button>
-
-                      {/* Three-dots Menu */}
-                      <button
-                        onClick={() => setActiveMenuId(activeMenuId === repo.id ? null : repo.id)}
-                        className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-
-                      {/* Dropdown menu */}
-                      {activeMenuId === repo.id && (
-                        <div
-                          className="absolute right-0 top-8 w-44 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 py-1.5 z-40 text-xs text-left animate-in fade-in zoom-in-95 duration-100"
-                          onMouseLeave={() => setActiveMenuId(null)}
-                        >
-                          <button
-                            onClick={() => {
-                              triggerReindex(repo.id);
-                              setActiveMenuId(null);
-                            }}
-                            className="w-full px-3 py-1.5 text-left text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-                          >
-                            <RefreshCw className="w-3.5 h-3.5 text-blue-500" />
-                            <span>Re-index with AST</span>
-                          </button>
-                          <a
-                            href={repo.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="w-full px-3 py-1.5 text-left text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                            <span>View on GitHub</span>
-                          </a>
-                          <button
-                            onClick={() => {
-                              requestDeleteRepository(repo);
-                              setActiveMenuId(null);
-                            }}
-                            className="w-full px-3 py-1.5 text-left text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800 mt-1 cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                            <span>Delete Repository</span>
-                          </button>
-                        </div>
+                      {repo.status === 'indexing' && (
+                        <span className="ml-2 text-[10px] text-blue-500 font-sans animate-pulse">
+                          Indexing...
+                        </span>
                       )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+
+                    {/* Last Updated */}
+                    <td className="py-4 px-6 text-slate-500 dark:text-slate-400 tabular-nums">
+                      {repo.lastUpdated}
+                    </td>
+
+                    {/* Actions (Search button & ⋮ menu) */}
+                    <td className="py-4 px-6 text-right">
+                      <div className="relative inline-flex items-center gap-2 justify-end">
+                        <button
+                          onClick={() => handleSearchRepo(repo.name)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-lg text-blue-600 dark:text-blue-400 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 border border-blue-200/60 dark:border-blue-900/40 transition-colors cursor-pointer"
+                        >
+                          <Search className="w-3 h-3" />
+                          <span>Search</span>
+                        </button>
+
+                        {/* Three-dots Menu */}
+                        <button
+                          onClick={() => setActiveMenuId(activeMenuId === repo.id ? null : repo.id)}
+                          className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+
+                        {/* Dropdown menu */}
+                        {activeMenuId === repo.id && (
+                          <div
+                            className="absolute right-0 top-8 w-44 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 py-1.5 z-40 text-xs text-left animate-in fade-in zoom-in-95 duration-100"
+                            onMouseLeave={() => setActiveMenuId(null)}
+                          >
+                            <button
+                              onClick={() => {
+                                triggerReindex(repo.id);
+                                setActiveMenuId(null);
+                              }}
+                              className="w-full px-3 py-1.5 text-left text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                            >
+                              <RefreshCw className="w-3.5 h-3.5 text-blue-500" />
+                              <span>Re-index with AST</span>
+                            </button>
+                            <a
+                              href={repo.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-full px-3 py-1.5 text-left text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                              <span>View on GitHub</span>
+                            </a>
+                            <button
+                              onClick={() => {
+                                requestDeleteRepository(repo);
+                                setActiveMenuId(null);
+                              }}
+                              className="w-full px-3 py-1.5 text-left text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center gap-2 border-t border-slate-100 dark:border-slate-800 mt-1 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              <span>Delete Repository</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination Controls */}
+        <div className="px-6 pb-4">
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            totalItems={totalRepos}
+            pageSize={pageSize}
+            pageSizeOptions={[3, 4]}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+            itemLabel="repositories"
+          />
         </div>
       </div>
 

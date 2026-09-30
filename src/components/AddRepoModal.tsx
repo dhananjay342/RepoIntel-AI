@@ -148,21 +148,21 @@ export const AddRepoModal: React.FC = () => {
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => handleSelectPreset('wander-lust', 'https://github.com/shahdhananjay342/wander-lust', 'JavaScript', 'Travel itinerary planner with routing')}
+              onClick={() => handleSelectPreset('wanderlust-travel', 'https://github.com/example-org/wanderlust-travel', 'JavaScript', 'Travel itinerary planner with routing')}
               className="px-2.5 py-1 text-xs rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
-              wander-lust (JS)
+              wanderlust-travel (JS)
             </button>
             <button
               type="button"
-              onClick={() => handleSelectPreset('RepoIntel-AI', 'https://github.com/AyushhVatsal/RepoIntel-AI', 'Python', 'AI semantic code search with AST parsing & pgvector')}
+              onClick={() => handleSelectPreset('repointel-engine', 'https://github.com/repointel-org/repointel-engine', 'Python', 'AI semantic code search with AST parsing & pgvector')}
               className="px-2.5 py-1 text-xs rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
-              RepoIntel-AI (Python)
+              repointel-engine (Python)
             </button>
             <button
               type="button"
-              onClick={() => handleSelectPreset('fastapi-microservice', 'https://github.com/fastapi/fastapi-template', 'Python', 'High performance async Python REST API')}
+              onClick={() => handleSelectPreset('fastapi-microservice', 'https://github.com/example-org/fastapi-template', 'Python', 'High performance async Python REST API')}
               className="px-2.5 py-1 text-xs rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               fastapi-template

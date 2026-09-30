@@ -370,13 +370,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ initialMode }) => {
               <button
                 type="button"
                 onClick={() => {
-                  setName('David Shah');
-                  setEmail('shahdhananjay342@gmail.com');
+                  setName('Alex Morgan');
+                  setEmail('alex.morgan@example.com');
                   setPassword('repointel2026');
                 }}
                 className="text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
               >
-                David Shah (Default)
+                Alex Morgan (Demo)
               </button>
             </div>
 

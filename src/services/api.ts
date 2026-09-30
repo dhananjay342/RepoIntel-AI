@@ -2,7 +2,7 @@ import { Repository, SearchQueryRequest, SearchQueryResponse, BackendHealth, Cod
 import { INITIAL_REPOSITORIES, INITIAL_SNIPPETS, INITIAL_SYMBOLS, BACKEND_HEALTH_DATA } from './mockData';
 import { SWAGGER_OPENAPI_SPEC } from './swaggerSpec';
 
-const STORAGE_KEY_REPOS = 'repointel_repositories_v1';
+const STORAGE_KEY_REPOS = 'repointel_repositories_v2';
 
 class RepoIntelApiService {
   private repositories: Repository[] = [];
@@ -17,7 +17,17 @@ class RepoIntelApiService {
     try {
       const stored = localStorage.getItem(STORAGE_KEY_REPOS);
       if (stored) {
-        this.repositories = JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        // Ensure no legacy personal URLs remain
+        const hasLegacy = parsed.some((r: Repository) => 
+          r.url.includes('shahdhananjay') || r.url.includes('AyushhVatsal')
+        );
+        if (hasLegacy || !Array.isArray(parsed) || parsed.length < 6) {
+          this.repositories = [...INITIAL_REPOSITORIES];
+          this.saveStorage();
+        } else {
+          this.repositories = parsed;
+        }
       } else {
         this.repositories = [...INITIAL_REPOSITORIES];
         this.saveStorage();
@@ -62,6 +72,54 @@ class RepoIntelApiService {
       // Fallback
     }
     return [...this.repositories];
+  }
+
+  async getRepositoriesPaginated(params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    language?: string;
+  }): Promise<{
+    items: Repository[];
+    total: number;
+    page: number;
+    totalPages: number;
+    limit: number;
+  }> {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.max(1, params.limit || 4);
+    const search = (params.search || '').trim().toLowerCase();
+    const language = params.language || 'All';
+
+    // Simulate fast async backend network latency for lazy loading
+    await new Promise((resolve) => setTimeout(resolve, 150));
+
+    let all = await this.getRepositories();
+
+    if (search) {
+      all = all.filter(r => 
+        r.name.toLowerCase().includes(search) || 
+        r.description.toLowerCase().includes(search)
+      );
+    }
+
+    if (language && language !== 'All') {
+      all = all.filter(r => r.language === language);
+    }
+
+    const total = all.length;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const validPage = Math.min(page, totalPages);
+    const start = (validPage - 1) * limit;
+    const items = all.slice(start, start + limit);
+
+    return {
+      items,
+      total,
+      page: validPage,
+      totalPages,
+      limit,
+    };
   }
 
   async getRepositoryById(id: string): Promise<Repository | null> {

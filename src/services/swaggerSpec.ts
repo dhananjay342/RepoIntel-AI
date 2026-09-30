@@ -12,7 +12,7 @@ export const SWAGGER_OPENAPI_SPEC = {
 * **Health & Telemetry**: Monitor PostgreSQL connection, pgvector status, and indexer worker queues.`,
     contact: {
       name: "RepoIntel-AI Engineering",
-      url: "https://github.com/AyushhVatsal/RepoIntel-AI",
+      url: "https://github.com/repointel-org/repointel-engine",
     },
     license: {
       name: "Apache 2.0",

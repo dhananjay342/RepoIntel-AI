@@ -197,7 +197,7 @@ export const Header: React.FC = () => {
                     Switch / Sign in with another account
                   </button>
                   <a
-                    href="https://github.com/AyushhVatsal/RepoIntel-AI"
+                    href="https://github.com/repointel-org/repointel-engine"
                     target="_blank"
                     rel="noreferrer"
                     className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-2"
